@@ -3,12 +3,18 @@ package sptty
 import (
 	"errors"
 	"fmt"
-	"github.com/kataras/iris"
-	"github.com/kataras/iris/context"
+
+	"github.com/kataras/iris/v12"
+	"github.com/kataras/iris/v12/context"
 	"gopkg.in/yaml.v2"
 )
 
 var appService *AppService = nil
+var appTag string = ""
+
+func SetTag(tag string) {
+	appTag = tag
+}
 
 func GetApp() *AppService {
 	if appService == nil {
@@ -102,7 +108,8 @@ func (s *AppService) release() {
 }
 
 func (s *AppService) Sptting() {
-	if s.init() != nil {
+	if err := s.init(); err != nil {
+		fmt.Println(err.Error())
 		return
 	}
 
