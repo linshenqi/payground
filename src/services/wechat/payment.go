@@ -30,7 +30,7 @@ func (s *PaymentProvider) CreatePayment(payment *base.Payment) (string, error) {
 	}
 
 	reqOrder.FromPayment(payment)
-	reqOrder.GenerateSign()
+	reqOrder.GenerateSign(s.Endpoint.MchSecret)
 
 	url := fmt.Sprintf("https://api.mch.weixin.qq.com/pay/unifiedorder")
 	resp, err := s.http.R().SetBody(reqOrder).Post(url)
@@ -56,7 +56,7 @@ func (s *PaymentProvider) GetPayment(query *base.PaymentQuery) (*base.PaymentNot
 		TradeNo:  query.TradeNo,
 	}
 
-	req.GenerateSign()
+	req.GenerateSign(s.Endpoint.MchSecret)
 
 	url := fmt.Sprintf("https://api.mch.weixin.qq.com/pay/orderquery")
 	resp, err := s.http.R().SetBody(req).Post(url)

@@ -1,9 +1,14 @@
 package wechat
 
 import (
+	"crypto/md5"
+	"encoding/hex"
+	"encoding/json"
 	"encoding/xml"
-
+	"fmt"
 	"github.com/linshenqi/payground/src/services/base"
+	"sort"
+	"strings"
 )
 
 const (
@@ -19,6 +24,36 @@ const (
 	ResultFail    = "FAIL"
 )
 
+func generateSign(payload interface{}, secret string) string {
+	vals := map[string]interface{}{}
+	body, _ := json.Marshal(payload)
+	_ = json.Unmarshal(body, &vals)
+
+	keys := []string{}
+	for k := range vals {
+		if k == "sign" {
+			continue
+		}
+
+		keys = append(keys, k)
+	}
+
+	sort.Strings(keys)
+
+	str := ""
+	for _, v := range keys {
+		str += fmt.Sprintf("%s=%v&", v, vals[v])
+	}
+
+	str += fmt.Sprintf("key=%s", secret)
+
+	h := md5.New()
+	h.Write([]byte(str))
+
+	sign := strings.ToUpper(hex.EncodeToString(h.Sum(nil)))
+	return sign
+}
+
 type PayloadBase struct {
 	XMLName xml.Name `xml:"xml"`
 }
@@ -26,16 +61,16 @@ type PayloadBase struct {
 type ReqOrder struct {
 	PayloadBase
 
-	AppKey         string `xml:"appid"`
-	MchKey         string `xml:"mch_id"`
-	NonceStr       string `xml:"nonce_str"`
-	Sign           string `xml:"sign"`
-	Boby           string `xml:"body"`
-	TradeNo        string `xml:"out_trade_no"`
-	TotalFee       int    `xml:"total_fee"`
-	SpbillCreateIP string `xml:"spbill_create_ip"`
-	NotifyUrl      string `xml:"notify_url"`
-	TradeType      string `xml:"trade_type"`
+	AppKey         string `xml:"appid" json:"appid"`
+	MchKey         string `xml:"mch_id" json:"mch_id"`
+	NonceStr       string `xml:"nonce_str" json:"nonce_str"`
+	Sign           string `xml:"sign" json:"sign"`
+	Boby           string `xml:"body" json:"body"`
+	TradeNo        string `xml:"out_trade_no" json:"out_trade_no"`
+	TotalFee       int    `xml:"total_fee" json:"total_fee"`
+	SpbillCreateIP string `xml:"spbill_create_ip" json:"spbill_create_ip"`
+	NotifyUrl      string `xml:"notify_url" json:"notify_url"`
+	TradeType      string `xml:"trade_type" json:"trade_type"`
 }
 
 func (s *ReqOrder) FromPayment(payment *base.Payment) {
@@ -53,8 +88,8 @@ func (s *ReqOrder) FromPayment(payment *base.Payment) {
 	}
 }
 
-func (s *ReqOrder) GenerateSign() {
-
+func (s *ReqOrder) GenerateSign(secret string) {
+	s.Sign = generateSign(s, secret)
 }
 
 type RespErr struct {
@@ -97,6 +132,6 @@ type ReqOrderQuery struct {
 	Sign     string `xml:"sign"`
 }
 
-func (s *ReqOrderQuery) GenerateSign() {
-
+func (s *ReqOrderQuery) GenerateSign(secret string) {
+	s.Sign = generateSign(s, secret)
 }

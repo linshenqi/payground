@@ -11,8 +11,8 @@ github.com/aymerick/douceur/css
 # github.com/aymerick/raymond v2.0.3-0.20180322193309-b565731e1464+incompatible
 github.com/aymerick/raymond
 github.com/aymerick/raymond/ast
-github.com/aymerick/raymond/lexer
 github.com/aymerick/raymond/parser
+github.com/aymerick/raymond/lexer
 # github.com/chris-ramon/douceur v0.2.0
 github.com/chris-ramon/douceur/parser
 # github.com/eknkc/amber v0.0.0-20171010120322-cdade1c07385
@@ -42,39 +42,39 @@ github.com/json-iterator/go
 # github.com/kataras/golog v0.0.18
 github.com/kataras/golog
 # github.com/kataras/iris/v12 v12.1.8
+github.com/kataras/iris/v12/context
 github.com/kataras/iris/v12
+github.com/kataras/iris/v12/core/memstore
+github.com/kataras/iris/v12/macro
 github.com/kataras/iris/v12/cache
-github.com/kataras/iris/v12/cache/cfg
+github.com/kataras/iris/v12/core/errgroup
+github.com/kataras/iris/v12/core/handlerconv
+github.com/kataras/iris/v12/core/host
+github.com/kataras/iris/v12/core/netutil
+github.com/kataras/iris/v12/core/router
+github.com/kataras/iris/v12/i18n
+github.com/kataras/iris/v12/middleware/logger
+github.com/kataras/iris/v12/middleware/recover
+github.com/kataras/iris/v12/view
+github.com/kataras/iris/v12/macro/interpreter/ast
+github.com/kataras/iris/v12/macro/interpreter/parser
 github.com/kataras/iris/v12/cache/client
+github.com/kataras/iris/v12/macro/handler
+github.com/kataras/iris/v12/macro/interpreter/lexer
+github.com/kataras/iris/v12/macro/interpreter/token
+github.com/kataras/iris/v12/cache/cfg
 github.com/kataras/iris/v12/cache/client/rule
 github.com/kataras/iris/v12/cache/entry
 github.com/kataras/iris/v12/cache/ruleset
 github.com/kataras/iris/v12/cache/uri
-github.com/kataras/iris/v12/context
-github.com/kataras/iris/v12/core/errgroup
-github.com/kataras/iris/v12/core/handlerconv
-github.com/kataras/iris/v12/core/host
-github.com/kataras/iris/v12/core/memstore
-github.com/kataras/iris/v12/core/netutil
-github.com/kataras/iris/v12/core/router
-github.com/kataras/iris/v12/i18n
-github.com/kataras/iris/v12/macro
-github.com/kataras/iris/v12/macro/handler
-github.com/kataras/iris/v12/macro/interpreter/ast
-github.com/kataras/iris/v12/macro/interpreter/lexer
-github.com/kataras/iris/v12/macro/interpreter/parser
-github.com/kataras/iris/v12/macro/interpreter/token
-github.com/kataras/iris/v12/middleware/logger
-github.com/kataras/iris/v12/middleware/recover
-github.com/kataras/iris/v12/view
 # github.com/kataras/pio v0.0.8
 github.com/kataras/pio
 github.com/kataras/pio/terminal
 # github.com/kataras/sitemap v0.0.5
 github.com/kataras/sitemap
 # github.com/klauspost/compress v1.10.10
-github.com/klauspost/compress/flate
 github.com/klauspost/compress/gzip
+github.com/klauspost/compress/flate
 # github.com/konsorten/go-windows-terminal-sequences v1.0.3
 github.com/konsorten/go-windows-terminal-sequences
 # github.com/lestrrat-go/file-rotatelogs v2.3.0+incompatible
@@ -108,25 +108,25 @@ github.com/shurcooL/sanitized_anchor_name
 # github.com/sirupsen/logrus v1.6.0
 github.com/sirupsen/logrus
 # golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9
-golang.org/x/crypto/acme
 golang.org/x/crypto/acme/autocert
+golang.org/x/crypto/acme
 # golang.org/x/net v0.0.0-20200625001655-4c5254603344
+golang.org/x/net/publicsuffix
 golang.org/x/net/html
 golang.org/x/net/html/atom
 golang.org/x/net/idna
-golang.org/x/net/publicsuffix
 # golang.org/x/sys v0.0.0-20200625212154-ddb9806d33ae
-golang.org/x/sys/internal/unsafeheader
 golang.org/x/sys/unix
+golang.org/x/sys/internal/unsafeheader
 # golang.org/x/text v0.3.3
+golang.org/x/text/language
 golang.org/x/text/internal/language
 golang.org/x/text/internal/language/compact
 golang.org/x/text/internal/tag
-golang.org/x/text/language
 golang.org/x/text/secure/bidirule
-golang.org/x/text/transform
 golang.org/x/text/unicode/bidi
 golang.org/x/text/unicode/norm
+golang.org/x/text/transform
 # gopkg.in/ini.v1 v1.57.0
 gopkg.in/ini.v1
 # gopkg.in/resty.v1 v1.12.0
