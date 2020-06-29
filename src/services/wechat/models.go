@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	NotifyEndpoint = "/api/v1/payment-wechat"
+	NotifyEndpoint = "/v1/payment-wechat"
 )
 
 const (
