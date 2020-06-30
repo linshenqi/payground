@@ -6,9 +6,10 @@ import (
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
-	"github.com/linshenqi/payground/src/services/base"
 	"sort"
 	"strings"
+
+	"github.com/linshenqi/payground/src/services/base"
 )
 
 const (
@@ -31,7 +32,7 @@ func generateSign(payload interface{}, secret string) string {
 
 	keys := []string{}
 	for k := range vals {
-		if k == "sign" {
+		if k == "sign" || k == "XMLName" {
 			continue
 		}
 
@@ -71,6 +72,7 @@ type ReqOrder struct {
 	SpbillCreateIP string `xml:"spbill_create_ip" json:"spbill_create_ip"`
 	NotifyUrl      string `xml:"notify_url" json:"notify_url"`
 	TradeType      string `xml:"trade_type" json:"trade_type"`
+	OpenID         string `xml:"openid" json:"openid"`
 }
 
 func (s *ReqOrder) FromPayment(payment *base.Payment) {

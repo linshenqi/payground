@@ -34,6 +34,7 @@ type Payment struct {
 	TradeNo  string `json:"trade_no"`
 	Desc     string `json:"desc"`
 	TotalFee int    `json:"total_fee"`
+	OpenID   string `json:"openid"`
 }
 
 type PaymentNotify struct {

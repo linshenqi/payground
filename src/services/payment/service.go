@@ -27,6 +27,8 @@ func (s *Service) Init(app sptty.Sptty) error {
 		return err
 	}
 
+	app.AddRoute("POST", "/v1/payments", s.postPayment)
+
 	return nil
 }
 

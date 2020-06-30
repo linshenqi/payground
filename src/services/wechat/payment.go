@@ -27,13 +27,15 @@ func (s *PaymentProvider) CreatePayment(payment *base.Payment) (string, error) {
 		NonceStr:       sptty.GenerateUID(),
 		SpbillCreateIP: s.BasePaymentProvider.GetReqIP(),
 		NotifyUrl:      s.getNotifyUrl(),
+		OpenID:         payment.OpenID,
 	}
 
 	reqOrder.FromPayment(payment)
 	reqOrder.GenerateSign(s.Endpoint.MchSecret)
 
 	url := fmt.Sprintf("https://api.mch.weixin.qq.com/pay/unifiedorder")
-	resp, err := s.http.R().SetBody(reqOrder).Post(url)
+	body, _ := xml.Marshal(reqOrder)
+	resp, err := s.http.R().SetBody(body).Post(url)
 	if err != nil {
 		return "", err
 	}
