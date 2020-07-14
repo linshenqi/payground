@@ -47,13 +47,22 @@ type PaymentQuery struct {
 	AppKey  string `json:"app_key"`
 }
 
+type CreatePaymentResp struct {
+	Type      string `json:"type"`
+	PrePayID  string `json:"prepay_id"`
+	TimeStamp int64  `json:"timestamp"`
+	NonceStr  string `json:"nonce_str"`
+	SignType  string `json:"sign_type"`
+	Sign      string `json:"sign"`
+}
+
 type IPaymentProvider interface {
 	Init(paymentUrl string, endpoint *PaymentEndpoint) error
 
 	Release()
 
 	// 创建支付(下单)
-	CreatePayment(payment *Payment) (string, error)
+	CreatePayment(payment *Payment) (*CreatePaymentResp, error)
 
 	// 订单查询
 	GetPayment(query *PaymentQuery) (*PaymentNotify, error)
@@ -93,8 +102,8 @@ func (s *BasePaymentProvider) Release() {
 	s.closing <- struct{}{}
 }
 
-func (s *BasePaymentProvider) CreatePayment(payment *Payment) (string, error) {
-	return "", nil
+func (s *BasePaymentProvider) CreatePayment(payment *Payment) (*CreatePaymentResp, error) {
+	return nil, nil
 }
 
 func (s *BasePaymentProvider) GetPayment(query *PaymentQuery) (*PaymentNotify, error) {
