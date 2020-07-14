@@ -82,10 +82,10 @@ func (s *Service) getProvider(endpoint string) (base.IPaymentProvider, error) {
 	return provider, nil
 }
 
-func (s *Service) CreatePayment(endpoint string, payment *base.Payment) (string, error) {
+func (s *Service) CreatePayment(endpoint string, payment *base.Payment) (*base.CreatePaymentResp, error) {
 	provider, err := s.getProvider(endpoint)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	return provider.CreatePayment(payment)
