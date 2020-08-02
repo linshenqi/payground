@@ -14,6 +14,10 @@ const (
 	PaymentNotifyLen = 4096
 )
 
+const (
+	ErrorUnknown = "ErrorUnknown"
+)
+
 type PaymentNotifyHandler func(notify *PaymentNotify)
 
 type PaymentNotifyController struct {
@@ -26,6 +30,8 @@ type PaymentEndpoint struct {
 	Provider  string `yaml:"provider"`
 	MchKey    string `yaml:"mch_key"`
 	MchSecret string `yaml:"mch_secret"`
+	CertFile  string `yaml:"cert_file"`
+	KeyFile   string `yaml:"key_file"`
 }
 
 type Payment struct {
@@ -56,6 +62,24 @@ type CreatePaymentResp struct {
 	Sign      string `json:"sign"`
 }
 
+type PaymentTransfer struct {
+	AppKey   string `json:"app_key"`
+	OpenID   string `json:"openid"`
+	TotalFee int    `json:"total_fee"`
+	Desc     string `json:"desc"`
+	TradeNo  string `json:"trade_no"`
+}
+
+type QueryTransfer struct {
+	AppKey  string `json:"app_key"`
+	TradeNo string `json:"trade_no"`
+}
+
+type QueryTransferResp struct {
+	Success bool   `json:"success"`
+	Reason  string `json:"reason"`
+}
+
 type IPaymentProvider interface {
 	Init(paymentUrl string, endpoint *PaymentEndpoint) error
 
@@ -68,7 +92,10 @@ type IPaymentProvider interface {
 	GetPayment(query *PaymentQuery) (*PaymentNotify, error)
 
 	// 转账给个人
-	Transfer(payment *Payment) error
+	Transfer(transfer *PaymentTransfer) error
+
+	// 转账查询
+	QueryTransfer(query *QueryTransfer) (*QueryTransferResp, error)
 
 	// 退款
 	Refund(payment *Payment) error
@@ -110,8 +137,12 @@ func (s *BasePaymentProvider) GetPayment(query *PaymentQuery) (*PaymentNotify, e
 	return nil, nil
 }
 
-func (s *BasePaymentProvider) Transfer(payment *Payment) error {
+func (s *BasePaymentProvider) Transfer(transfer *PaymentTransfer) error {
 	return nil
+}
+
+func (s *BasePaymentProvider) QueryTransfer(query *QueryTransfer) (*QueryTransferResp, error) {
+	return nil, nil
 }
 
 func (s *BasePaymentProvider) Refund(payment *Payment) error {

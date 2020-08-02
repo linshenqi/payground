@@ -12,10 +12,10 @@ model:
   enable: false
 
 payment:
-  payment_url: http://payment.ashibro.com
+  payment_url: https://api.ashibro.com/app/v1/payment-wechat
   endpoints:
     wechat:
       provider: wechat
-      mch_key: awefawef
-      mch_secret: awefawef
+      mch_key: 1595767231
+      mch_secret: JFGxc4TRaYKcwiHi96AhBvxWxx9CUhsO
       

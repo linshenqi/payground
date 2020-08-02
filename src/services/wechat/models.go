@@ -137,3 +137,65 @@ type ReqOrderQuery struct {
 func (s *ReqOrderQuery) GenerateSign(secret string) {
 	s.Sign = generateSign(s, secret)
 }
+
+type ReqTransferQuery struct {
+	PayloadBase
+
+	AppKey   string `xml:"appid" json:"appid"`
+	MchKey   string `xml:"mch_id" json:"mch_id"`
+	NonceStr string `xml:"nonce_str" json:"nonce_str"`
+	Sign     string `xml:"sign" json:"sign"`
+	TradeNo  string `xml:"partner_trade_no" json:"partner_trade_no"`
+}
+
+func (s *ReqTransferQuery) FromTransferQuery(transfer *base.QueryTransfer) {
+	s.AppKey = transfer.AppKey
+	s.TradeNo = transfer.TradeNo
+}
+
+func (s *ReqTransferQuery) GenerateSign(secret string) {
+	s.Sign = generateSign(s, secret)
+}
+
+type RespQueryTransfer struct {
+	PayloadBase
+
+	RespReturn
+	RespErr
+
+	ResultCode string `xml:"result_code"`
+	Status     string `xml:"status"`
+	Reason     string `xml:"reason"`
+}
+
+type ReqTransfer struct {
+	ReqTransferQuery
+
+	OpenID    string `xml:"openid" json:"openid"`
+	CheckName string `xml:"check_name" json:"check_name"`
+	TotalFee  int    `xml:"amount" json:"amount"`
+	Desc      string `xml:"desc" json:"desc"`
+}
+
+func (s *ReqTransfer) FromPaymentTransfer(transfer *base.PaymentTransfer) {
+	s.AppKey = transfer.AppKey
+	s.Desc = transfer.Desc
+	s.TotalFee = transfer.TotalFee
+	s.TradeNo = transfer.TradeNo
+	s.OpenID = transfer.OpenID
+}
+
+func (s *ReqTransfer) GenerateSign(secret string) {
+	s.Sign = generateSign(s, secret)
+}
+
+type RespTransfer struct {
+	PayloadBase
+
+	RespReturn
+	RespErr
+
+	ResultCode string `xml:"result_code"`
+	TradeNo    string `xml:"partner_trade_no"`
+	PaymentNo  string `xml:"payment_no"`
+}

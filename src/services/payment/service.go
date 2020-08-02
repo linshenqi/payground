@@ -100,13 +100,22 @@ func (s *Service) GetPayment(endpoint string, query *base.PaymentQuery) (*base.P
 	return provider.GetPayment(query)
 }
 
-func (s *Service) Transfer(endpoint string, payment *base.Payment) error {
+func (s *Service) Transfer(endpoint string, transfer *base.PaymentTransfer) error {
 	provider, err := s.getProvider(endpoint)
 	if err != nil {
 		return err
 	}
 
-	return provider.Transfer(payment)
+	return provider.Transfer(transfer)
+}
+
+func (s *Service) QueryTransfer(endpoint string, query *base.QueryTransfer) (*base.QueryTransferResp, error) {
+	provider, err := s.getProvider(endpoint)
+	if err != nil {
+		return nil, err
+	}
+
+	return provider.QueryTransfer(query)
 }
 
 func (s *Service) Refund(endpoint string, payment *base.Payment) error {

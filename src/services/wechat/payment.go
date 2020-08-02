@@ -1,9 +1,11 @@
 package wechat
 
 import (
+	"crypto/tls"
 	"encoding/json"
 	"encoding/xml"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/kataras/iris/v12"
@@ -102,8 +104,100 @@ func (s *PaymentProvider) GetPayment(query *base.PaymentQuery) (*base.PaymentNot
 	return &notify, nil
 }
 
-func (s *PaymentProvider) Transfer(payment *base.Payment) error {
+func (s *PaymentProvider) Transfer(transfer *base.PaymentTransfer) error {
+	cert, err := s.loadCert()
+	if err != nil {
+		return err
+	}
+
+	s.http.SetCertificates(*cert)
+
+	req := ReqTransfer{
+		CheckName: "NO_CHECK",
+	}
+
+	req.MchKey = s.Endpoint.MchKey
+	req.NonceStr = sptty.GenerateUID()
+
+	req.FromPaymentTransfer(transfer)
+	req.GenerateSign(s.Endpoint.MchSecret)
+
+	url := fmt.Sprintf("https://api.mch.weixin.qq.com/mmpaymkttransfers/promotion/transfers")
+	body, _ := xml.Marshal(req)
+	resp, err := s.http.R().SetBody(body).Post(url)
+	if err != nil {
+		return err
+	}
+
+	respBody := RespTransfer{}
+	_ = xml.Unmarshal(resp.Body(), &respBody)
+	if respBody.ResultCode != ResultSuccess || respBody.ReturnCode != ResultSuccess {
+		errBody, _ := json.Marshal(respBody.RespErr)
+		strBody := string(errBody)
+		if strings.Contains(strBody, "SYSTEMERROR") {
+			return fmt.Errorf(base.ErrorUnknown)
+		}
+
+		return fmt.Errorf(string(errBody))
+	}
+
 	return nil
+}
+
+func (s *PaymentProvider) QueryTransfer(query *base.QueryTransfer) (*base.QueryTransferResp, error) {
+	cert, err := s.loadCert()
+	if err != nil {
+		return nil, err
+	}
+
+	s.http.SetCertificates(*cert)
+
+	req := ReqTransferQuery{
+		MchKey:   s.Endpoint.MchKey,
+		NonceStr: sptty.GenerateUID(),
+	}
+
+	req.FromTransferQuery(query)
+	req.GenerateSign(s.Endpoint.MchSecret)
+
+	url := fmt.Sprintf("https://api.mch.weixin.qq.com/mmpaymkttransfers/gettransferinfo")
+	body, _ := xml.Marshal(req)
+	resp, err := s.http.R().SetBody(body).Post(url)
+	if err != nil {
+		return nil, err
+	}
+
+	respBody := RespQueryTransfer{}
+	_ = xml.Unmarshal(resp.Body(), &respBody)
+	if respBody.ResultCode != ResultSuccess || respBody.ReturnCode != ResultSuccess {
+		errBody, _ := json.Marshal(respBody.RespErr)
+		strBody := string(errBody)
+		if strings.Contains(strBody, "SYSTEMERROR") {
+			return nil, fmt.Errorf(base.ErrorUnknown)
+		}
+
+		return nil, fmt.Errorf(string(errBody))
+	}
+
+	rt := &base.QueryTransferResp{
+		Reason:  respBody.Reason,
+		Success: false,
+	}
+
+	if respBody.Status == "SUCCESS" {
+		rt.Success = true
+	}
+
+	return rt, nil
+}
+
+func (s *PaymentProvider) loadCert() (*tls.Certificate, error) {
+	cert, err := tls.LoadX509KeyPair(s.Endpoint.CertFile, s.Endpoint.KeyFile)
+	if err != nil {
+		return nil, err
+	}
+
+	return &cert, nil
 }
 
 func (s *PaymentProvider) Refund(payment *base.Payment) error {
