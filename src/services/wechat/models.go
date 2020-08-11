@@ -127,11 +127,11 @@ type RespNotify struct {
 type ReqOrderQuery struct {
 	PayloadBase
 
-	AppKey   string `xml:"appid"`
-	MchKey   string `xml:"mch_id"`
-	TradeNo  string `xml:"out_trade_no"`
-	NonceStr string `xml:"nonce_str"`
-	Sign     string `xml:"sign"`
+	AppKey   string `xml:"appid" json:"appid"`
+	MchKey   string `xml:"mch_id" json:"mch_id"`
+	TradeNo  string `xml:"out_trade_no" json:"out_trade_no"`
+	NonceStr string `xml:"nonce_str" json:"nonce_str"`
+	Sign     string `xml:"sign" json:"sign"`
 }
 
 func (s *ReqOrderQuery) GenerateSign(secret string) {
