@@ -2,10 +2,8 @@ package wechat
 
 import (
 	"crypto/tls"
-	"encoding/json"
 	"encoding/xml"
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/kataras/iris/v12"
@@ -46,8 +44,7 @@ func (s *PaymentProvider) CreatePayment(payment *base.Payment) (*base.CreatePaym
 	respBody := ResqOrder{}
 	_ = xml.Unmarshal(resp.Body(), &respBody)
 	if respBody.ResultCode != ResultSuccess || respBody.ReturnCode != ResultSuccess {
-		errBody, _ := json.Marshal(respBody.RespErr)
-		return nil, fmt.Errorf(string(errBody))
+		return nil, fmt.Errorf("%+v", respBody)
 	}
 
 	return s.generatePaymentResp(payment.Type, respBody.PrepayID), nil
@@ -95,6 +92,7 @@ func (s *PaymentProvider) GetPayment(query *base.PaymentQuery) (*base.PaymentNot
 	notify := base.PaymentNotify{
 		TradeNo: query.TradeNo,
 		Success: false,
+		Msg:     fmt.Sprintf("%+v", respBody.RespReturn),
 	}
 
 	if respBody.ResultCode == ResultSuccess && respBody.ReturnCode == ResultSuccess {
@@ -132,13 +130,11 @@ func (s *PaymentProvider) Transfer(transfer *base.PaymentTransfer) error {
 	respBody := RespTransfer{}
 	_ = xml.Unmarshal(resp.Body(), &respBody)
 	if respBody.ResultCode != ResultSuccess || respBody.ReturnCode != ResultSuccess {
-		errBody, _ := json.Marshal(respBody.RespErr)
-		strBody := string(errBody)
-		if strings.Contains(strBody, "SYSTEMERROR") {
+		if respBody.ErrCode == "SYSTEMERROR" {
 			return fmt.Errorf(base.ErrorUnknown)
 		}
 
-		return fmt.Errorf(string(errBody))
+		return fmt.Errorf("%+v", respBody)
 	}
 
 	return nil
@@ -170,13 +166,12 @@ func (s *PaymentProvider) QueryTransfer(query *base.QueryTransfer) (*base.QueryT
 	respBody := RespQueryTransfer{}
 	_ = xml.Unmarshal(resp.Body(), &respBody)
 	if respBody.ResultCode != ResultSuccess || respBody.ReturnCode != ResultSuccess {
-		errBody, _ := json.Marshal(respBody.RespErr)
-		strBody := string(errBody)
-		if strings.Contains(strBody, "SYSTEMERROR") {
+
+		if respBody.ErrCode == "SYSTEMERROR" {
 			return nil, fmt.Errorf(base.ErrorUnknown)
 		}
 
-		return nil, fmt.Errorf(string(errBody))
+		return nil, fmt.Errorf("%+v", respBody)
 	}
 
 	rt := &base.QueryTransferResp{
@@ -238,6 +233,7 @@ func (s *PaymentProvider) notifyController(ctx iris.Context) {
 	notify := base.PaymentNotify{
 		TradeNo: req.TradeNo,
 		Success: false,
+		Msg:     fmt.Sprintf("%+v", req.RespReturn),
 	}
 
 	if req.ResultCode == ResultSuccess && req.ReturnCode == ResultSuccess {

@@ -46,6 +46,7 @@ type Payment struct {
 type PaymentNotify struct {
 	TradeNo string
 	Success bool
+	Msg     string
 }
 
 type PaymentQuery struct {
