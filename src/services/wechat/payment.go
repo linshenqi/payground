@@ -82,7 +82,9 @@ func (s *PaymentProvider) GetPayment(query *base.PaymentQuery) (*base.PaymentNot
 	req.GenerateSign(s.Endpoint.MchSecret)
 
 	url := fmt.Sprintf("https://api.mch.weixin.qq.com/pay/orderquery")
-	resp, err := s.http.R().SetBody(req).Post(url)
+
+	body, _ := xml.Marshal(req)
+	resp, err := s.http.R().SetBody(body).Post(url)
 	if err != nil {
 		return nil, err
 	}
