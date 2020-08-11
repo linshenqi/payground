@@ -6,6 +6,6 @@ import (
 )
 
 func TestBase(t *testing.T) {
-	ip := GetIPByHost("www.baidu.com", "127.0.0.1")
+	ip := GetIPByHost("https://api.ashibro.com/transaction", "127.0.0.1")
 	fmt.Println(ip)
 }

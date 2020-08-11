@@ -1,9 +1,18 @@
 package base
 
-import "net"
+import (
+	"net"
+	"strings"
+)
 
 func GetIPByHost(host string, defaultIP string) string {
-	addr, err := net.ResolveIPAddr("ip", host)
+	targetHost := host
+	vals := strings.Split(host, "://")
+	if len(vals) > 1 {
+		targetHost = strings.Split(vals[1], "/")[0]
+	}
+
+	addr, err := net.ResolveIPAddr("ip", targetHost)
 	if err != nil {
 		return defaultIP
 	}
