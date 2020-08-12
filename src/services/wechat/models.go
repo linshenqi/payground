@@ -117,6 +117,39 @@ type ReqNotify struct {
 	RespReturn
 	ResultCode string `xml:"result_code"`
 	TradeNo    string `xml:"out_trade_no"`
+	TradeState string `xml:"trade_state"`
+}
+
+func (s *ReqNotify) ToPaymentNotify() *base.PaymentNotify {
+	notify := base.PaymentNotify{
+		TradeNo: s.TradeNo,
+		Msg:     fmt.Sprintf("%+v", s.RespReturn),
+	}
+
+	switch s.TradeState {
+	case "SUCCESS":
+		notify.Status = base.PaymentStatusSuccess
+
+	case "REFUND":
+		notify.Status = base.PaymentStatusRefund
+
+	case "NOTPAY":
+		notify.Status = base.PaymentStatusNotPay
+
+	case "CLOSED":
+		notify.Status = base.PaymentStatusClosed
+
+	case "REVOKED":
+		notify.Status = base.PaymentStatusRevoked
+
+	case "USERPAYING":
+		notify.Status = base.PaymentStatusPaying
+
+	default:
+		notify.Status = base.PaymentStatusUnKnown
+	}
+
+	return &notify
 }
 
 type RespNotify struct {
@@ -166,6 +199,26 @@ type RespQueryTransfer struct {
 	ResultCode string `xml:"result_code"`
 	Status     string `xml:"status"`
 	Reason     string `xml:"reason"`
+}
+
+func (s *RespQueryTransfer) ToQueryTransferResp() *base.QueryTransferResp {
+	resp := base.QueryTransferResp{
+		Reason: s.Reason,
+	}
+
+	switch s.Status {
+	case "SUCCESS":
+		resp.Status = base.TransferStatusSuccess
+	case "FAILED":
+		resp.Status = base.TransferStatusFailed
+	case "PROCESSING":
+		resp.Status = base.TransferStatusProcessing
+
+	default:
+		resp.Status = base.TransferStatusProcessing
+	}
+
+	return &resp
 }
 
 type ReqTransfer struct {

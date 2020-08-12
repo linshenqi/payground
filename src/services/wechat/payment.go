@@ -91,17 +91,8 @@ func (s *PaymentProvider) GetPayment(query *base.PaymentQuery) (*base.PaymentNot
 
 	respBody := ReqNotify{}
 	_ = xml.Unmarshal(resp.Body(), &respBody)
-	notify := base.PaymentNotify{
-		TradeNo: query.TradeNo,
-		Success: false,
-		Msg:     fmt.Sprintf("%+v", respBody.RespReturn),
-	}
 
-	if respBody.ResultCode == ResultSuccess && respBody.ReturnCode == ResultSuccess {
-		notify.Success = true
-	}
-
-	return &notify, nil
+	return respBody.ToPaymentNotify(), nil
 }
 
 func (s *PaymentProvider) Transfer(transfer *base.PaymentTransfer) error {
@@ -132,10 +123,6 @@ func (s *PaymentProvider) Transfer(transfer *base.PaymentTransfer) error {
 	respBody := RespTransfer{}
 	_ = xml.Unmarshal(resp.Body(), &respBody)
 	if respBody.ResultCode != ResultSuccess || respBody.ReturnCode != ResultSuccess {
-		if respBody.ErrCode == "SYSTEMERROR" {
-			return fmt.Errorf(base.ErrorUnknown)
-		}
-
 		return fmt.Errorf("%+v", respBody)
 	}
 
@@ -168,24 +155,10 @@ func (s *PaymentProvider) QueryTransfer(query *base.QueryTransfer) (*base.QueryT
 	respBody := RespQueryTransfer{}
 	_ = xml.Unmarshal(resp.Body(), &respBody)
 	if respBody.ResultCode != ResultSuccess || respBody.ReturnCode != ResultSuccess {
-
-		if respBody.ErrCode == "SYSTEMERROR" {
-			return nil, fmt.Errorf(base.ErrorUnknown)
-		}
-
 		return nil, fmt.Errorf("%+v", respBody)
 	}
 
-	rt := &base.QueryTransferResp{
-		Reason:  respBody.Reason,
-		Success: false,
-	}
-
-	if respBody.Status == "SUCCESS" {
-		rt.Success = true
-	}
-
-	return rt, nil
+	return respBody.ToQueryTransferResp(), nil
 }
 
 func (s *PaymentProvider) loadCert() (*tls.Certificate, error) {
@@ -232,17 +205,7 @@ func (s *PaymentProvider) notifyController(ctx iris.Context) {
 
 	sptty.Log(sptty.DebugLevel, fmt.Sprintf("Raw Payment Notify: %+v", req))
 
-	notify := base.PaymentNotify{
-		TradeNo: req.TradeNo,
-		Success: false,
-		Msg:     fmt.Sprintf("%+v", req.RespReturn),
-	}
-
-	if req.ResultCode == ResultSuccess && req.ReturnCode == ResultSuccess {
-		notify.Success = true
-	}
-
-	s.BasePaymentProvider.PostNotify(&notify)
+	s.BasePaymentProvider.PostNotify(req.ToPaymentNotify())
 
 	body, _ := xml.Marshal(RespNotify{
 		RespReturn: RespReturn{

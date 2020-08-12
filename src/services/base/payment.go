@@ -15,6 +15,40 @@ const (
 )
 
 const (
+	// 支付成功
+	PaymentStatusSuccess = "success"
+
+	// 转入退款
+	PaymentStatusRefund = "refund"
+
+	// 未支付
+	PaymentStatusNotPay = "notpay"
+
+	// 已关闭
+	PaymentStatusClosed = "closed"
+
+	// 已撤销
+	PaymentStatusRevoked = "revoked"
+
+	// 支付中
+	PaymentStatusPaying = "paying"
+
+	// 其他错误
+	PaymentStatusUnKnown = "unknown"
+)
+
+const (
+	// 转账成功
+	TransferStatusSuccess = "success"
+
+	// 转账失败
+	TransferStatusFailed = "failed"
+
+	// 转账处理中
+	TransferStatusProcessing = "processing"
+)
+
+const (
 	ErrorUnknown = "ErrorUnknown"
 )
 
@@ -45,7 +79,7 @@ type Payment struct {
 
 type PaymentNotify struct {
 	TradeNo string
-	Success bool
+	Status  string
 	Msg     string
 }
 
@@ -77,8 +111,8 @@ type QueryTransfer struct {
 }
 
 type QueryTransferResp struct {
-	Success bool   `json:"success"`
-	Reason  string `json:"reason"`
+	Status string `json:"status"`
+	Reason string `json:"reason"`
 }
 
 type IPaymentProvider interface {
