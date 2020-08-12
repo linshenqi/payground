@@ -224,7 +224,7 @@ func (s *RespQueryTransfer) ToQueryTransferResp() *base.QueryTransferResp {
 type ReqTransfer struct {
 	PayloadBase
 
-	AppKey   string `xml:"appid" json:"appid"`
+	AppKey   string `xml:"mch_appid" json:"mch_appid"`
 	MchKey   string `xml:"mchid" json:"mchid"`
 	NonceStr string `xml:"nonce_str" json:"nonce_str"`
 	Sign     string `xml:"sign" json:"sign"`
