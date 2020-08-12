@@ -222,7 +222,13 @@ func (s *RespQueryTransfer) ToQueryTransferResp() *base.QueryTransferResp {
 }
 
 type ReqTransfer struct {
-	ReqTransferQuery
+	PayloadBase
+
+	AppKey   string `xml:"appid" json:"appid"`
+	MchKey   string `xml:"mchid" json:"mchid"`
+	NonceStr string `xml:"nonce_str" json:"nonce_str"`
+	Sign     string `xml:"sign" json:"sign"`
+	TradeNo  string `xml:"partner_trade_no" json:"partner_trade_no"`
 
 	OpenID    string `xml:"openid" json:"openid"`
 	CheckName string `xml:"check_name" json:"check_name"`
