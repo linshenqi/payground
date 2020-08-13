@@ -64,7 +64,7 @@ func (s *PaymentProvider) generatePaymentResp(paymentType string, prepayID strin
 		"nonceStr":  resp.NonceStr,
 		"package":   fmt.Sprintf("prepay_id=%s", resp.PrePayID),
 		"signType":  resp.SignType,
-		"timeStamp": resp.TimeStamp,
+		"timeStamp": fmt.Sprintf("%d", resp.TimeStamp),
 	}
 
 	resp.Sign = generateSign(signBoby, s.Endpoint.MchSecret)
