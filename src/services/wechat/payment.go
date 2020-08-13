@@ -47,10 +47,10 @@ func (s *PaymentProvider) CreatePayment(payment *base.Payment) (*base.CreatePaym
 		return nil, fmt.Errorf("%+v", respBody)
 	}
 
-	return s.generatePaymentResp(payment.Type, respBody.PrepayID, reqOrder.NonceStr), nil
+	return s.generatePaymentResp(payment.Type, respBody.PrepayID, reqOrder.NonceStr, payment.AppKey), nil
 }
 
-func (s *PaymentProvider) generatePaymentResp(paymentType string, prepayID string, nonceStr string) *base.CreatePaymentResp {
+func (s *PaymentProvider) generatePaymentResp(paymentType string, prepayID string, nonceStr string, appID string) *base.CreatePaymentResp {
 	resp := base.CreatePaymentResp{
 		Type:      paymentType,
 		PrePayID:  prepayID,
@@ -60,7 +60,7 @@ func (s *PaymentProvider) generatePaymentResp(paymentType string, prepayID strin
 	}
 
 	signBoby := map[string]interface{}{
-		"appId":     s.Endpoint.MchKey,
+		"appId":     appID,
 		"nonceStr":  resp.NonceStr,
 		"package":   fmt.Sprintf("prepay_id=%s", resp.PrePayID),
 		"signType":  resp.SignType,
