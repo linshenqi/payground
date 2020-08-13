@@ -47,15 +47,15 @@ func (s *PaymentProvider) CreatePayment(payment *base.Payment) (*base.CreatePaym
 		return nil, fmt.Errorf("%+v", respBody)
 	}
 
-	return s.generatePaymentResp(payment.Type, respBody.PrepayID), nil
+	return s.generatePaymentResp(payment.Type, respBody.PrepayID, reqOrder.NonceStr), nil
 }
 
-func (s *PaymentProvider) generatePaymentResp(paymentType string, prepayID string) *base.CreatePaymentResp {
+func (s *PaymentProvider) generatePaymentResp(paymentType string, prepayID string, nonceStr string) *base.CreatePaymentResp {
 	resp := base.CreatePaymentResp{
 		Type:      paymentType,
 		PrePayID:  prepayID,
 		TimeStamp: time.Now().Unix(),
-		NonceStr:  sptty.GenerateUID(),
+		NonceStr:  nonceStr,
 		SignType:  "MD5",
 	}
 
