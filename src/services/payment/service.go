@@ -56,7 +56,7 @@ func (s *Service) initProviders(app sptty.Sptty) error {
 			provider = &wechat.PaymentProvider{}
 
 		default:
-			return fmt.Errorf("Provider Error: %s", v.Provider)
+			return fmt.Errorf("Provider Error: %s ", v.Provider)
 		}
 
 		controller := provider.GetNotifyController()
@@ -125,6 +125,24 @@ func (s *Service) Refund(endpoint string, payment *base.Payment) error {
 	}
 
 	return provider.Refund(payment)
+}
+
+func (s *Service) QueryRefund(endpoint string, query *base.QueryRefund) (*base.QueryRefundResp, error) {
+	provider, err := s.getProvider(endpoint)
+	if err != nil {
+		return nil, err
+	}
+
+	return provider.QueryRefund(query)
+}
+
+func (s *Service) ClosePayment(endpoint string, payment *base.Payment) error {
+	provider, err := s.getProvider(endpoint)
+	if err != nil {
+		return err
+	}
+
+	return provider.Close(payment)
 }
 
 func (s *Service) SetupNotify(endpoint string, handler base.PaymentNotifyHandler) {

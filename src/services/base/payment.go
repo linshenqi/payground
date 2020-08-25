@@ -49,6 +49,20 @@ const (
 )
 
 const (
+	// 退款成功
+	RefundStatusSuccess = "success"
+
+	// 退款处理中
+	RefundStatusProcessing = "processing"
+
+	// 退款关闭
+	RefundStatusClosed = "closed"
+
+	// 退款异常
+	RefundStatusException = "exception"
+)
+
+const (
 	ErrorUnknown = "ErrorUnknown"
 )
 
@@ -115,6 +129,16 @@ type QueryTransferResp struct {
 	Reason string `json:"reason"`
 }
 
+type QueryRefund struct {
+	AppKey  string `json:"app_key"`
+	TradeNo string `json:"trade_no"`
+}
+
+type QueryRefundResp struct {
+	Status string `json:"status"`
+	Reason string `json:"reason"`
+}
+
 type IPaymentProvider interface {
 	Init(paymentUrl string, endpoint *PaymentEndpoint) error
 
@@ -134,6 +158,12 @@ type IPaymentProvider interface {
 
 	// 退款
 	Refund(payment *Payment) error
+
+	// 退款查询
+	QueryRefund(query *QueryRefund) (*QueryRefundResp, error)
+
+	// 关闭订单
+	Close(payment *Payment) error
 
 	// 通知回调
 	SetupNotify(handler PaymentNotifyHandler)
@@ -181,6 +211,14 @@ func (s *BasePaymentProvider) QueryTransfer(query *QueryTransfer) (*QueryTransfe
 }
 
 func (s *BasePaymentProvider) Refund(payment *Payment) error {
+	return nil
+}
+
+func (s *BasePaymentProvider) QueryRefund(query *QueryRefund) (*QueryRefundResp, error) {
+	return nil, nil
+}
+
+func (s *BasePaymentProvider) Close(payment *Payment) error {
 	return nil
 }
 

@@ -1,12 +1,8 @@
 package wechat
 
 import (
-	"crypto/tls"
 	"encoding/xml"
 	"fmt"
-	"time"
-
-	"github.com/kataras/iris/v12"
 	"github.com/linshenqi/payground/src/services/base"
 	"github.com/linshenqi/sptty"
 	"gopkg.in/resty.v1"
@@ -48,27 +44,6 @@ func (s *PaymentProvider) CreatePayment(payment *base.Payment) (*base.CreatePaym
 	}
 
 	return s.generatePaymentResp(payment.Type, respBody.PrepayID, reqOrder.NonceStr, payment.AppKey), nil
-}
-
-func (s *PaymentProvider) generatePaymentResp(paymentType string, prepayID string, nonceStr string, appID string) *base.CreatePaymentResp {
-	resp := base.CreatePaymentResp{
-		Type:      paymentType,
-		PrePayID:  prepayID,
-		TimeStamp: time.Now().Unix(),
-		NonceStr:  nonceStr,
-		SignType:  "MD5",
-	}
-
-	signBoby := map[string]interface{}{
-		"appId":     appID,
-		"nonceStr":  resp.NonceStr,
-		"package":   fmt.Sprintf("prepay_id=%s", resp.PrePayID),
-		"signType":  resp.SignType,
-		"timeStamp": fmt.Sprintf("%d", resp.TimeStamp),
-	}
-
-	resp.Sign = generateSign(signBoby, s.Endpoint.MchSecret)
-	return &resp
 }
 
 func (s *PaymentProvider) GetPayment(query *base.PaymentQuery) (*base.PaymentNotify, error) {
@@ -161,16 +136,88 @@ func (s *PaymentProvider) QueryTransfer(query *base.QueryTransfer) (*base.QueryT
 	return respBody.ToQueryTransferResp(), nil
 }
 
-func (s *PaymentProvider) loadCert() (*tls.Certificate, error) {
-	cert, err := tls.LoadX509KeyPair(s.Endpoint.CertFile, s.Endpoint.KeyFile)
+// 退款
+func (s *PaymentProvider) Refund(payment *base.Payment) error {
+	cert, err := s.loadCert()
+	if err != nil {
+		return err
+	}
+
+	s.http.SetCertificates(*cert)
+
+	req := ReqRefund{
+		MchKey:   s.Endpoint.MchKey,
+		NonceStr: sptty.GenerateUID(),
+	}
+
+	req.FromPayment(payment)
+	req.GenerateSign(s.Endpoint.MchSecret)
+
+	url := fmt.Sprintf("https://api.mch.weixin.qq.com/secapi/pay/refund")
+	body, _ := xml.Marshal(req)
+	resp, err := s.http.R().SetBody(body).Post(url)
+	if err != nil {
+		return err
+	}
+
+	respBody := RespRefund{}
+	_ = xml.Unmarshal(resp.Body(), &respBody)
+	if respBody.ResultCode != ResultSuccess || respBody.ReturnCode != ResultSuccess {
+		return fmt.Errorf("%+v", respBody)
+	}
+
+	return nil
+}
+
+// 退款查询
+func (s *PaymentProvider) QueryRefund(query *base.QueryRefund) (*base.QueryRefundResp, error) {
+	req := ReqQueryRefund{
+		MchKey:   s.Endpoint.MchKey,
+		NonceStr: sptty.GenerateUID(),
+	}
+
+	req.FromQueryRefund(query)
+	req.GenerateSign(s.Endpoint.MchSecret)
+
+	url := fmt.Sprintf("https://api.mch.weixin.qq.com/pay/refundquery")
+	body, _ := xml.Marshal(req)
+	resp, err := s.http.R().SetBody(body).Post(url)
 	if err != nil {
 		return nil, err
 	}
 
-	return &cert, nil
+	respBody := RespQueryRefund{}
+	_ = xml.Unmarshal(resp.Body(), &respBody)
+	if respBody.ResultCode != ResultSuccess || respBody.ReturnCode != ResultSuccess {
+		return nil, fmt.Errorf("%+v", respBody)
+	}
+
+	return respBody.ToQueryRefundResp(), nil
 }
 
-func (s *PaymentProvider) Refund(payment *base.Payment) error {
+// 关闭订单
+func (s *PaymentProvider) Close(payment *base.Payment) error {
+	req := ReqClosePayment{
+		MchKey:   s.Endpoint.MchKey,
+		NonceStr: sptty.GenerateUID(),
+	}
+
+	req.FromPayment(payment)
+	req.GenerateSign(s.Endpoint.MchSecret)
+
+	url := fmt.Sprintf("https://api.mch.weixin.qq.com/pay/closeorder")
+	body, _ := xml.Marshal(req)
+	resp, err := s.http.R().SetBody(body).Post(url)
+	if err != nil {
+		return err
+	}
+
+	respBody := RespRefund{}
+	_ = xml.Unmarshal(resp.Body(), &respBody)
+	if respBody.ResultCode != ResultSuccess || respBody.ReturnCode != ResultSuccess {
+		return fmt.Errorf("%+v", respBody)
+	}
+
 	return nil
 }
 
@@ -180,39 +227,4 @@ func (s *PaymentProvider) GetNotifyController() *base.PaymentNotifyController {
 		Endpoint: NotifyEndpoint,
 		Handler:  s.notifyController,
 	}
-}
-
-func (s *PaymentProvider) getNotifyUrl() string {
-	url := fmt.Sprintf("%s%s", s.BasePaymentProvider.PaymentUrl, NotifyEndpoint)
-	return url
-}
-
-func (s *PaymentProvider) notifyController(ctx iris.Context) {
-	req := ReqNotify{}
-	if err := ctx.ReadXML(&req); err != nil {
-
-		body, _ := xml.Marshal(RespNotify{
-			RespReturn: RespReturn{
-				ReturnCode: ResultFail,
-				ReturnMsg:  "Body Format Error",
-			},
-		})
-
-		_, _ = ctx.Write(body)
-		ctx.StatusCode(iris.StatusBadRequest)
-		return
-	}
-
-	sptty.Log(sptty.DebugLevel, fmt.Sprintf("Raw Payment Notify: %+v", req))
-
-	s.BasePaymentProvider.PostNotify(req.ToPaymentNotify())
-
-	body, _ := xml.Marshal(RespNotify{
-		RespReturn: RespReturn{
-			ReturnCode: ResultSuccess,
-			ReturnMsg:  "OK",
-		},
-	})
-
-	_, _ = ctx.Write(body)
 }

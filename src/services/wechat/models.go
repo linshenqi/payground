@@ -258,3 +258,117 @@ type RespTransfer struct {
 	TradeNo    string `xml:"partner_trade_no"`
 	PaymentNo  string `xml:"payment_no"`
 }
+
+type ReqRefund struct {
+	PayloadBase
+
+	AppKey    string `xml:"appid" json:"appid"`
+	MchKey    string `xml:"mch_id" json:"mch_id"`
+	NonceStr  string `xml:"nonce_str" json:"nonce_str"`
+	Sign      string `xml:"sign" json:"sign"`
+	TradeNo   string `xml:"out_trade_no" json:"out_trade_no"`
+	RefundNo  string `xml:"out_refund_no" json:"out_refund_no"`
+	TotalFee  int    `xml:"total_fee" json:"total_fee"`
+	RefundFee int    `xml:"refund_fee" json:"refund_fee"`
+}
+
+func (s *ReqRefund) FromPayment(payment *base.Payment) {
+	s.AppKey = payment.AppKey
+	s.TradeNo = payment.TradeNo
+	s.RefundNo = payment.TradeNo
+	s.TotalFee = payment.TotalFee
+	s.RefundFee = payment.TotalFee
+}
+
+func (s *ReqRefund) GenerateSign(secret string) {
+	s.Sign = generateSign(s, secret)
+}
+
+type RespRefund struct {
+	PayloadBase
+
+	RespReturn
+	RespErr
+
+	ResultCode string `xml:"result_code"`
+	TradeNo    string `xml:"out_trade_no" json:"out_trade_no"`
+}
+
+type ReqQueryRefund struct {
+	PayloadBase
+
+	AppKey   string `xml:"appid" json:"appid"`
+	MchKey   string `xml:"mch_id" json:"mch_id"`
+	NonceStr string `xml:"nonce_str" json:"nonce_str"`
+	Sign     string `xml:"sign" json:"sign"`
+	TradeNo  string `xml:"out_trade_no" json:"out_trade_no"`
+}
+
+func (s *ReqQueryRefund) FromQueryRefund(query *base.QueryRefund) {
+	s.AppKey = query.AppKey
+	s.TradeNo = query.TradeNo
+}
+
+func (s *ReqQueryRefund) GenerateSign(secret string) {
+	s.Sign = generateSign(s, secret)
+}
+
+type RespQueryRefund struct {
+	PayloadBase
+
+	RespReturn
+	RespErr
+
+	ResultCode string `xml:"result_code"`
+	TradeNo    string `xml:"out_trade_no" json:"out_trade_no"`
+
+	Status string `xml:"refund_status_0"`
+}
+
+func (s *RespQueryRefund) ToQueryRefundResp() *base.QueryRefundResp {
+	resp := base.QueryRefundResp{}
+
+	switch s.Status {
+	case "SUCCESS":
+		resp.Status = base.RefundStatusSuccess
+	case "REFUNDCLOSE":
+		resp.Status = base.RefundStatusClosed
+	case "PROCESSING":
+		resp.Status = base.RefundStatusProcessing
+	case "CHANGE":
+		resp.Status = base.RefundStatusException
+
+	default:
+		resp.Status = base.TransferStatusProcessing
+	}
+
+	return &resp
+}
+
+type ReqClosePayment struct {
+	PayloadBase
+
+	AppKey   string `xml:"appid" json:"appid"`
+	MchKey   string `xml:"mch_id" json:"mch_id"`
+	NonceStr string `xml:"nonce_str" json:"nonce_str"`
+	Sign     string `xml:"sign" json:"sign"`
+	TradeNo  string `xml:"out_trade_no" json:"out_trade_no"`
+}
+
+func (s *ReqClosePayment) FromPayment(payment *base.Payment) {
+	s.AppKey = payment.AppKey
+	s.TradeNo = payment.TradeNo
+}
+
+func (s *ReqClosePayment) GenerateSign(secret string) {
+	s.Sign = generateSign(s, secret)
+}
+
+type RespClosePayment struct {
+	PayloadBase
+
+	RespReturn
+	RespErr
+
+	ResultCode string `xml:"result_code"`
+}
