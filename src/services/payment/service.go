@@ -18,7 +18,7 @@ type Service struct {
 	providers map[string]base.IPaymentProvider
 }
 
-func (s *Service) Init(app sptty.Sptty) error {
+func (s *Service) Init(app sptty.ISptty) error {
 	if err := app.GetConfig(s.ServiceName(), &s.cfg); err != nil {
 		return err
 	}
@@ -46,7 +46,7 @@ func (s *Service) ServiceName() string {
 	return ServiceName
 }
 
-func (s *Service) initProviders(app sptty.Sptty) error {
+func (s *Service) initProviders(app sptty.ISptty) error {
 	s.providers = map[string]base.IPaymentProvider{}
 
 	var provider base.IPaymentProvider
