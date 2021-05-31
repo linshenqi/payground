@@ -49,7 +49,7 @@ func generateSign(payload interface{}, secret string) string {
 	str += fmt.Sprintf("key=%s", secret)
 
 	h := md5.New()
-	h.Write([]byte(str))
+	_, _ = h.Write([]byte(str))
 
 	sign := strings.ToUpper(hex.EncodeToString(h.Sum(nil)))
 	return sign
@@ -277,7 +277,12 @@ func (s *ReqRefund) FromPayment(payment *base.Payment) {
 	s.TradeNo = payment.TradeNo
 	s.RefundNo = payment.TradeNo
 	s.TotalFee = payment.TotalFee
-	s.RefundFee = payment.TotalFee
+
+	if payment.RefundFee > 0 {
+		s.RefundFee = payment.RefundFee
+	} else {
+		s.RefundFee = payment.TotalFee
+	}
 }
 
 func (s *ReqRefund) GenerateSign(secret string) {

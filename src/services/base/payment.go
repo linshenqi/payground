@@ -88,7 +88,11 @@ type Payment struct {
 	TradeNo  string `json:"trade_no"`
 	Desc     string `json:"desc"`
 	TotalFee int    `json:"total_fee"`
-	OpenID   string `json:"openid"`
+
+	// 如果为0则表示全额退款
+	RefundFee int `json:"refund_fee"`
+
+	OpenID string `json:"openid"`
 }
 
 type PaymentNotify struct {

@@ -148,7 +148,7 @@ func (s *PaymentProvider) Refund(payment *base.Payment) error {
 	req := ReqRefund{
 		MchKey:   s.Endpoint.MchKey,
 		NonceStr: sptty.GenerateUID(),
-	}
+	}``
 
 	req.FromPayment(payment)
 	req.GenerateSign(s.Endpoint.MchSecret)
