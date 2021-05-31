@@ -89,7 +89,7 @@ type Payment struct {
 	Desc     string `json:"desc"`
 	TotalFee int    `json:"total_fee"`
 
-	// 如果为0则表示全额退款
+	// 退款时使用，如果为0则表示全额退款
 	RefundFee int `json:"refund_fee"`
 
 	OpenID string `json:"openid"`
