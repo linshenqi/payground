@@ -1,6 +1,6 @@
 package payment
 
-import "github.com/linshenqi/payground/src/services/base"
+import "github.com/linshenqi/payground/src/base"
 
 type Config struct {
 	PaymentUrl string                          `yaml:"payment_url"`

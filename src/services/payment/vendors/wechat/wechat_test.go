@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/linshenqi/payground/src/services/base"
+	"github.com/linshenqi/payground/src/base"
 )
 
 func getProvider() (*PaymentProvider, error) {

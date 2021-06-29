@@ -4,10 +4,11 @@ import (
 	"crypto/tls"
 	"encoding/xml"
 	"fmt"
-	"github.com/kataras/iris/v12"
-	"github.com/linshenqi/payground/src/services/base"
-	"github.com/linshenqi/sptty"
 	"time"
+
+	"github.com/kataras/iris/v12"
+	"github.com/linshenqi/payground/src/base"
+	"github.com/linshenqi/sptty"
 )
 
 func (s *PaymentProvider) generatePaymentResp(paymentType string, prepayID string, nonceStr string, appID string) *base.CreatePaymentResp {

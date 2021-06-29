@@ -4,8 +4,8 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/linshenqi/payground/src/services/base"
-	"github.com/linshenqi/payground/src/services/wechat"
+	"github.com/linshenqi/payground/src/base"
+	"github.com/linshenqi/payground/src/services/payment/vendors/wechat"
 	"github.com/linshenqi/sptty"
 )
 
@@ -52,7 +52,7 @@ func (s *Service) initProviders(app sptty.ISptty) error {
 	var provider base.IPaymentProvider
 	for k, v := range s.cfg.Endpoints {
 		switch v.Provider {
-		case base.PaymentWechat:
+		case base.PaymentWechat, base.PaymentMiniProgram:
 			provider = &wechat.PaymentProvider{}
 
 		default:

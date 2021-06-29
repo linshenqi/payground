@@ -3,7 +3,7 @@ package wechat
 import (
 	"encoding/xml"
 	"fmt"
-	"github.com/linshenqi/payground/src/services/base"
+	"github.com/linshenqi/payground/src/base"
 	"github.com/linshenqi/sptty"
 	"gopkg.in/resty.v1"
 )
@@ -148,7 +148,7 @@ func (s *PaymentProvider) Refund(payment *base.Payment) error {
 	req := ReqRefund{
 		MchKey:   s.Endpoint.MchKey,
 		NonceStr: sptty.GenerateUID(),
-	}``
+	}
 
 	req.FromPayment(payment)
 	req.GenerateSign(s.Endpoint.MchSecret)
